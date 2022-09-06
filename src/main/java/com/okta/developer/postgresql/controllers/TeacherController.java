@@ -1,12 +1,14 @@
 package com.okta.developer.postgresql.controllers;
 
 import com.okta.developer.postgresql.entities.Review;
+import com.okta.developer.postgresql.entities.Teacher;
 import com.okta.developer.postgresql.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @RestController
 public class TeacherController {
@@ -20,17 +22,24 @@ public class TeacherController {
     }
 
     @PostMapping("/teachers/{id}/review")
-    public ResponseEntity addReview(@RequestBody Review review, @PathVariable("id") String teacherID){
-
+    public ResponseEntity<Teacher> addReview(@RequestBody Review review, @PathVariable("id") String teacherID){
         try {
-            teacherService.addReview(teacherID, review);
-            return ResponseEntity.ok().build();
+            Teacher teacher = teacherService.addReview(teacherID, review);
+            return ResponseEntity.ok(teacher);
         }
         catch (EntityNotFoundException e){
             return ResponseEntity.notFound().build();
         }
-
-
     }
 
+    @GetMapping("/teachers/author/{author}")
+    public ResponseEntity<List<Teacher>> getTeachersByAuthor(@PathVariable("author") String author){
+        try {
+            List<Teacher> teachersByAuthorReview = teacherService.findTeachersByAuthorReview(author);
+            return ResponseEntity.ok(teachersByAuthorReview);
+        }
+        catch (EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class SimpleTeacherService implements TeacherService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void addReview(String teacherID, Review review) {
+    public Teacher addReview(String teacherID, Review review) {
         Objects.requireNonNull(teacherID);
         Objects.requireNonNull(review);
 
@@ -36,13 +37,16 @@ public class SimpleTeacherService implements TeacherService {
 
         review.setDate(LocalDate.now());
 
-        if(teacher.getReviews() == null){
+        if(teacher.getReviews() == null)
             teacher.setReviews(new ArrayList<>());
-        }
 
         teacher.getReviews().add(review);
 
-        teacherDAO.save(teacher);
+        return teacherDAO.save(teacher);
+    }
 
+    @Override
+    public List<Teacher> findTeachersByAuthorReview(String author) {
+        return teacherDAO.findTeachersByAuthorReview(author);
     }
 }

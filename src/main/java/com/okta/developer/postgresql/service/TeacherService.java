@@ -1,8 +1,10 @@
 package com.okta.developer.postgresql.service;
 
 import com.okta.developer.postgresql.entities.Review;
+import com.okta.developer.postgresql.entities.Teacher;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
 public interface TeacherService {
@@ -13,5 +15,7 @@ public interface TeacherService {
      * @param review
      * @throws javax.persistence.EntityNotFoundException
      */
-    void addReview(@NotNull String teacherID, @NotNull Review review);
+    Teacher addReview(@NotNull String teacherID, @NotNull Review review);
+
+    List<Teacher> findTeachersByAuthorReview(String author);
 }
