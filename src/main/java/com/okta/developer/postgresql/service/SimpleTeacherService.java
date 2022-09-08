@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class SimpleTeacherService implements TeacherService {
-
     private final TeacherDAO teacherDAO;
 
     @Autowired
@@ -46,7 +47,38 @@ public class SimpleTeacherService implements TeacherService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Teacher changeReview(String teacherID, Review review) {
+        Teacher teacher = teacherDAO
+                .findById(UUID.fromString(teacherID))
+                .orElseThrow(() -> new EntityNotFoundException(teacherID));
+        Review persistedReview = teacher.getReviews().stream().filter(r -> r.getAuthor().equalsIgnoreCase(review.getAuthor())).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Author %s not found", review.getAuthor())));
+        persistedReview.setReview(review.getReview());
+        persistedReview.setDate(LocalDate.now());
+        return teacherDAO.save(teacher);
+    }
+
+    @Override
+    public List<Teacher> findAll() {
+        return StreamSupport
+                .stream(teacherDAO.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Teacher> findTeachersByAuthorReview(String author) {
         return teacherDAO.findTeachersByAuthorReview(author);
+    }
+
+    @Override
+    public Teacher removeReviewByAuthor(String teacherID, String author) {
+        Teacher teacher = teacherDAO
+                .findById(UUID.fromString(teacherID))
+                .orElseThrow(() -> new EntityNotFoundException(teacherID));
+        Review review = teacher.getReviews().stream().filter(r -> r.getAuthor().equalsIgnoreCase(author)).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Author %s not found", author)));
+        teacher.getReviews().remove(review);
+        return teacherDAO.save(teacher);
     }
 }

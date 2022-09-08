@@ -10,12 +10,13 @@ import java.util.List;
 public interface TeacherService {
 
     /**
-     *
      * @param teacherID
      * @param review
      * @throws javax.persistence.EntityNotFoundException
      */
     Teacher addReview(@NotNull String teacherID, @NotNull Review review);
-
+    Teacher changeReview(@NotNull String teacherID, @NotNull Review review);
+    List<Teacher> findAll();
     List<Teacher> findTeachersByAuthorReview(String author);
+    Teacher removeReviewByAuthor(String teacherID, String author);
 }
